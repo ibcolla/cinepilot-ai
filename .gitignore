@@ -1,9 +1,40 @@
+# Environment & Credentials (CRITICAL)
 .env
-credentials.json
-__pycache__/
-*.pyc
-node_modules/
-.DS_Store
 .env.local
+credentials.json
+*-credentials.json
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+
+# Virtual Environments
+venv/
+env/
+.venv
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Generated agent output / debug artifacts
+agent_output.txt
+*_output.txt
