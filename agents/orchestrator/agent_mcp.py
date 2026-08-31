@@ -5,7 +5,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from google import genai
-import clickhouse_connect
+from mcp_clickhouse.tools import run_query
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("AGENT_LOG_LEVEL", "INFO"))
@@ -24,17 +24,9 @@ class CinePilotOrchestratorMCP:
         logger.info("✅ CinePilot Orchestrator with ClickHouse MCP initialized")
     
     def query_production_decisions(self, scene_id: str) -> str:
-        """Query ClickHouse for production decisions"""
+        """Query ClickHouse for production decisions via MCP"""
         logger.info(f"🔍 Querying ClickHouse for {scene_id} production decisions...")
-        
         try:
-            client = clickhouse_connect.get_client(
-                host=os.getenv("CLICKHOUSE_HOST"),
-                port=int(os.getenv("CLICKHOUSE_PORT", 8443)),
-                username=os.getenv("CLICKHOUSE_USER", "default"),
-                password=os.getenv("CLICKHOUSE_PASSWORD"),
-            )
-            
             query = f"""
             SELECT 
                 decision_id, 
@@ -43,18 +35,38 @@ class CinePilotOrchestratorMCP:
             FROM cinepilot.production_decisions 
             WHERE scene_id = '{scene_id}'
             """
-            
-            result = client.query(query)
+
+            result = run_query(query)
             logger.info(f"✅ ClickHouse MCP query succeeded")
-            logger.info(f"   Rows: {len(result.result_rows)}")
-            
-            if result.result_rows:
-                for row in result.result_rows:
-                    logger.info(f"   Decision: Approved take {row[1]} - {row[2]}")
-                return f"Production decisions: {result.result_rows}"
+
+            # Normalize possible result shapes
+            rows = []
+            if hasattr(result, "result_rows"):
+                rows = result.result_rows
+            elif isinstance(result, (list, tuple)):
+                rows = list(result)
+            elif isinstance(result, dict) and "rows" in result:
+                rows = result["rows"]
+            else:
+                rows = [result]
+
+            try:
+                count = len(rows)
+            except Exception:
+                count = 1
+
+            logger.info(f"   Rows: {count}")
+
+            if rows:
+                for row in rows:
+                    try:
+                        logger.info(f"   Decision: Approved take {row[1]} - {row[2]}")
+                    except Exception:
+                        logger.info(f"   Decision row: {row}")
+                return f"Production decisions: {rows}"
             else:
                 return "No production decisions found"
-                
+
         except Exception as e:
             logger.error(f"❌ ClickHouse query failed: {e}")
             return f"Error: {e}"
@@ -65,7 +77,7 @@ class CinePilotOrchestratorMCP:
         
         # Query production decisions from ClickHouse via MCP path
         production_data = self.query_production_decisions("SC12")
-        logger.info(f"📊 Production data retrieved: {production_data[:80]}")
+        logger.info(f"📊 Production data retrieved: {str(production_data)[:80]}")
         
         # Build prompt with ClickHouse data
         prompt = f"""You are a film production continuity supervisor.
