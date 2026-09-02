@@ -5,7 +5,7 @@ import os
 import logging
 from dotenv import load_dotenv
 from google import genai
-from mcp_clickhouse.tools import run_query
+from mcp_clickhouse import run_query
 
 load_dotenv()
 logging.basicConfig(level=os.getenv("AGENT_LOG_LEVEL", "INFO"))

@@ -39,6 +39,7 @@ export default function Scene12Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [backendAvailable, setBackendAvailable] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   // Check if backend is available on mount
   useEffect(() => {
@@ -78,6 +79,7 @@ Compare against approved production standard for continuity issues.
 
       if (response.success && response.analysis) {
         setAnalysis(response.analysis);
+        setLastUpdated(new Date().toLocaleString());
       } else {
         setError(response.error || 'Analysis failed');
       }
@@ -154,24 +156,31 @@ Compare against approved production standard for continuity issues.
         )}
 
         {/* Analyze Button */}
-        {backendAvailable && (
-          <div className="mb-8">
-            <button
-              onClick={handleAnalyzeCurrentTake}
-              disabled={isLoading}
-              className={`
-                px-6 py-3 rounded-lg font-semibold transition-all duration-200
-                ${
-                  isLoading
-                    ? 'bg-accent/50 text-accent-foreground/50 cursor-not-allowed'
-                    : 'bg-accent text-accent-foreground hover:bg-accent/90 cursor-pointer'
-                }
-              `}
-            >
-              {isLoading ? '🔄 Analyzing... (Gemini is reasoning)' : '📹 Analyze Current Take'}
-            </button>
-          </div>
-        )}
+        <div className="mb-8">
+          <button
+            onClick={handleAnalyzeCurrentTake}
+            disabled={isLoading || !backendAvailable}
+            className={`
+              px-6 py-3 rounded-lg font-semibold transition-all duration-200
+              ${
+                isLoading
+                  ? 'bg-accent/50 text-accent-foreground/50 cursor-not-allowed'
+                  : backendAvailable
+                    ? 'bg-accent text-accent-foreground hover:bg-accent/90 cursor-pointer'
+                    : 'bg-muted text-muted-foreground cursor-not-allowed'
+              }
+            `}
+          >
+            {isLoading
+              ? '🔄 Analyzing... (Gemini is reasoning)'
+              : backendAvailable
+                ? '📹 Analyze Current Take'
+                : '⚠️ Analyze Current Take (backend offline)'}
+          </button>
+          {lastUpdated && (
+            <p className="text-sm text-muted-foreground mt-3">Last live analysis: {lastUpdated}</p>
+          )}
+        </div>
 
         {/* Issues List */}
         <div className="space-y-4">
