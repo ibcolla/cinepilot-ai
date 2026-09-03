@@ -1,0 +1,14 @@
+# Exclude Python artifacts and secrets
+__pycache__/
+venv/
+.env
+.env.*
+credentials.json
+*-credentials.json
+service-account*.json
+.DS_Store
+node_modules/
+frontend/.next/
+build/
+dist/
+.git
