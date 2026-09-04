@@ -196,6 +196,10 @@ Key limitations include:
 
 Because this is a demo, the product memory and continuity screens should be viewed as illustrative examples of the expected user experience, not a complete live production database.
 
+## Final demo video
+
+Final demo (Scene 12): https://youtu.be/XkPYM1uuA4s?si=QbpznOp_qJc_BnAe
+
 ## Project goals
 
 CinePilot AI is meant to demonstrate how AI can support production continuity supervision by:
