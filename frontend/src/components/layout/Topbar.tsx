@@ -14,7 +14,8 @@ export function Topbar() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/agent/status');
+        const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+        const response = await fetch(`${BACKEND}/api/agent/status`);
         if (response.ok) {
           const data: AgentStatus = await response.json();
           setAgentStatus(data);

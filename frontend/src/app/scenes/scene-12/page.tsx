@@ -45,7 +45,8 @@ export default function Scene12Page() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const response = await fetch('http://localhost:8000/health', {
+        const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+        const response = await fetch(`${BACKEND}/health`, {
           signal: AbortSignal.timeout(3000),
         });
         setBackendAvailable(response.ok);
